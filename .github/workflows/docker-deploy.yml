@@ -16,17 +16,17 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Escaneo de vulnerabilidades en dependencias (Trivy SCA)
-        uses: aquasecurity/trivy-action@0.28.0
+      - name: Escaneo de dependencias (Trivy)
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
-          exit-code: '0' # Permite que el pipeline continúe para no frenar el despliegue
+          exit-code: '0'
           severity: 'HIGH,CRITICAL'
 
-      - name: Análisis estático de código (Semgrep SAST)
-        uses: semgrep/action@v1
+      - name: Análisis estático (Semgrep)
+        uses: returntocorp/semgrep-action@v1
         with:
           config: >-
             p/nodejs 
