@@ -1,1 +1,54 @@
 
+name: DevSecOps Docker Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  # ---------------------------------------------------
+  # FASE 1: Seguridad (SAST & SCA)
+  # ---------------------------------------------------
+  security-audits:
+    name: Security Scans (Semgrep & Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Escaneo de vulnerabilidades en dependencias (Trivy SCA)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0' # Permite que el pipeline continúe para no frenar el despliegue
+          severity: 'HIGH,CRITICAL'
+
+      - name: Análisis estático de código (Semgrep SAST)
+        uses: semgrep/action@v1
+        with:
+          config: >-
+            p/nodejs 
+            p/javascript 
+            p/security-audit
+
+  # ---------------------------------------------------
+  # FASE 2: Despliegue Continuo (CD) con Docker
+  # ---------------------------------------------------
+  deploy-docker:
+    name: Deploy to Heroku via Docker
+    needs: security-audits # Obliga a que los escaneos terminen antes de desplegar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Despliegue en Heroku (Modo Container)
+        uses: akhileshns/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          # Asegúrate de usar el nombre de tu app Docker aquí:
+          heroku_app_name: "app-vul-jonatanarellano-docker" 
+          heroku_email: "jonatan1902@gmail.com"
+          usedocker: true
