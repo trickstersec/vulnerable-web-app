@@ -44,6 +44,9 @@ jobs:
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
+      
+      - name: Instalar Heroku CLI
+        run: npm install -g heroku
 
       - name: Despliegue en Heroku (Modo Container)
         uses: akhileshns/heroku-deploy@v3.13.15
