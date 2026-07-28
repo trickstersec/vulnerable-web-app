@@ -1,0 +1,21 @@
+name: Docker Deployment Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy-docker:
+    name: Deploy to Heroku via Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Despliegue en Heroku (Modo Container)
+        uses: akhileshns/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "app-vul-jonatanarellano-docker" # CAMBIA ESTO por el nombre de tu nueva app
+          heroku_email: "jonatan1902@gmail.com"
+          usedocker: true # ESTA ES LA MAGIA: Le dice que ignore Node y use tu Dockerfile
